@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UrbanStep | Portal de Calzado & Especificación del Sistema</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @media print {
+            body * { visibility: hidden; }
+            #printable-receipt, #printable-receipt * { visibility: visible; }
+            #printable-receipt { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col antialiased">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('tienda')">
+                <div class="bg-gradient-to-tr from-brand-600 to-sky-400 p-2 rounded-xl text-white shadow-md shadow-brand-500/20">
+                    <i data-lucide="footprints" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">UrbanStep</span>
+                    <span class="text-[10px] block text-sky-400 font-semibold tracking-wider uppercase -mt-1">Sneakers & Style</span>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex bg-slate-800/90 p-1 rounded-xl border border-slate-700/80 text-xs sm:text-sm">
+                <button id="tab-btn-tienda" onclick="switchTab('tienda')" class="px-3 sm:px-4 py-1.5 font-semibold rounded-lg transition-all flex items-center space-x-1.5 bg-brand-600 text-white shadow-sm">
+                    <i data-lucide="store" class="w-4 h-4"></i>
+                    <span>Tienda / Portal</span>
+                </button>
+                <button id="tab-btn-doc" onclick="switchTab('doc')" class="px-3 sm:px-4 py-1.5 font-semibold rounded-lg text-slate-300 hover:text-white transition-all flex items-center space-x-1.5">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span>Caso de Uso</span>
+                </button>
+                <button id="tab-btn-admin" onclick="switchTab('admin')" class="px-3 sm:px-4 py-1.5 font-semibold rounded-lg text-slate-300 hover:text-white transition-all flex items-center space-x-1.5">
+                    <i data-lucide="boxes" class="w-4 h-4"></i>
+                    <span>Inventario</span>
+                </button>
+            </nav>
+
+            <!-- GitHub Deploy Quick Info Button -->
+            <button onclick="openGithubModal()" class="hidden md:flex items-center space-x-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition">
+                <i data-lucide="github" class="w-4 h-4 text-sky-400"></i>
+                <span>Deploy GitHub Pages</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- ==================================================== -->
+        <!-- SECCIÓN 1: TIENDA VIRTUAL / CATALOGO / CHECKOUT (POS)-->
+        <!-- ==================================================== -->
+        <section id="view-tienda" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- COLUMNA IZQUIERDA/CENTRO: Catálogo & Filtros (8 Col lg) -->
+            <div class="lg:col-span-7 xl:col-span-8 space-y-5">
+                
+                <!-- Barra Superior de Filtros y Búsqueda -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    
+                    <!-- Filtro Categorías -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 custom-scrollbar" id="category-filters">
+                        <button onclick="filterCategory('all')" class="cat-btn active border border-brand-500 bg-brand-50 text-brand-700 font-semibold text-xs px-3 py-2 rounded-xl whitespace-nowrap transition">Todos</button>
+                        <button onclick="filterCategory('deportivas')" class="cat-btn border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs px-3 py-2 rounded-xl whitespace-nowrap transition">Deportivas</button>
+                        <button onclick="filterCategory('casual')" class="cat-btn border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs px-3 py-2 rounded-xl whitespace-nowrap transition">Casual</button>
+                        <button onclick="filterCategory('botas')" class="cat-btn border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs px-3 py-2 rounded-xl whitespace-nowrap transition">Botas</button>
+                        <button onclick="filterCategory('formales')" class="cat-btn border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs px-3 py-2 rounded-xl whitespace-nowrap transition">Formales</button>
+                        <button onclick="filterCategory('sandalias')" class="cat-btn border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs px-3 py-2 rounded-xl whitespace-nowrap transition">Sandalias</button>
+                    </div>
+
+                    <!-- Buscador & Filtro Talla -->
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-48">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="search-input" oninput="renderCatalog()" placeholder="Buscar modelo..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                        </div>
+
+                        <select id="size-filter" onchange="renderCatalog()" class="py-2 px-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="all">Todas las Tallas</option>
+                            <option value="38">Talla 38</option>
+                            <option value="39">Talla 39</option>
+                            <option value="40">Talla 40</option>
+                            <option value="41">Talla 41</option>
+                            <option value="42">Talla 42</option>
+                            <option value="43">Talla 43</option>
+                            <option value="44">Talla 44</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Grid de Tarjetas de Zapatos -->
+                <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                    <!-- Dinámico vía JavaScript -->
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: Carrito de Compras & Proceso de Pago (4 Col lg) -->
+            <div class="lg:col-span-5 xl:col-span-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col sticky top-20 max-h-[calc(100vh-100px)] overflow-hidden">
+                    
+                    <!-- Header Carrito -->
+                    <div class="p-4 border-b border-slate-100 bg-slate-900 text-white rounded-t-2xl flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="shopping-bag" class="w-5 h-5 text-sky-400"></i>
+                            <h2 class="font-bold text-sm tracking-wide">Orden de Compra</h2>
+                        </div>
+                        <span id="cart-badge" class="bg-brand-500 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">0 items</span>
+                    </div>
+
+                    <!-- Items del Carrito -->
+                    <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar divide-y divide-slate-100 min-h-[160px]">
+                        <!-- Renderizado Vía JS -->
+                    </div>
+
+                    <!-- Resumen Financiero y Datos de Pedido -->
+                    <div class="p-4 border-t border-slate-100 bg-slate-50/70 space-y-3">
+                        
+                        <!-- Totales -->
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between text-slate-500">
+                                <span>Subtotal</span>
+                                <span id="summary-subtotal" class="font-semibold text-slate-800">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-500">
+                                <span>IVA (13%)</span>
+                                <span id="summary-tax" class="font-semibold text-slate-800">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-900 text-base font-extrabold pt-2 border-t border-slate-200">
+                                <span>Total Final</span>
+                                <span id="summary-total" class="text-brand-600">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Formulario de Envío Rápido -->
+                        <div class="pt-2 border-t border-slate-200/60 space-y-2">
+                            <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Datos de Entrega y Pago</label>
+                            
+                            <input type="text" id="checkout-name" placeholder="Nombre completo del cliente" class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            
+                            <input type="text" id="checkout-address" placeholder="Dirección de envío / Sucursal" class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+
+                            <div class="grid grid-cols-2 gap-2 pt-1">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="pay_method" value="Tarjeta de Crédito/Débito" checked class="peer sr-only">
+                                    <div class="border rounded-lg p-2 text-center peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 hover:bg-slate-100 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition">
+                                        <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Tarjeta
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="pay_method" value="Efectivo / POS" class="peer sr-only">
+                                    <div class="border rounded-lg p-2 text-center peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 hover:bg-slate-100 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition">
+                                        <i data-lucide="banknote" class="w-3.5 h-3.5"></i> Efectivo
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Checkbox Simulador Excepción Pago -->
+                            <div class="flex items-center gap-2 pt-1">
+                                <input type="checkbox" id="simulate-fail" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                                <label for="simulate-fail" class="text-[10px] font-medium text-amber-700 cursor-pointer select-none">
+                                    Simular fallo/rechazo de tarjeta (Flujo Excepción)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="pt-2 flex gap-2">
+                            <button onclick="clearCart()" title="Vaciar Carrito" class="p-2.5 border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-100 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                            <button id="btn-checkout" onclick="processCheckout()" disabled class="flex-1 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-xs">
+                                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                <span>Confirmar y Procesar Pedido</span>
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ==================================================== -->
+        <!-- SECCIÓN 2: DOCUMENTACIÓN DE CASO DE USO DEL SISTEMA  -->
+        <!-- ==================================================== -->
+        <section id="view-doc" class="hidden space-y-8 max-w-5xl mx-auto">
+            
+            <!-- Encabezado de la Documentación -->
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+                <div class="border-b border-slate-100 pb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2.5 py-0.5 bg-brand-100 text-brand-800 font-bold text-[10px] rounded-full uppercase tracking-wider">Documentación Técnica UML</span>
+                            <span class="px-2.5 py-0.5 bg-slate-100 text-slate-700 font-bold text-[10px] rounded-full uppercase">v2.4 - ISO 25010</span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-900">CU-01: Proceso Integral de Selección, Venta y Pedido de Calzado</h1>
+                        <p class="text-slate-500 text-xs sm:text-sm mt-1">Sistema Web de Gestión e Inventario - Zapatería UrbanStep</p>
+                    </div>
+                </div>
+
+                <!-- Actores del Sistema -->
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4 text-brand-600"></i> Actores Participantes
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="border border-slate-200 p-3.5 rounded-xl bg-slate-50">
+                            <div class="font-bold text-slate-800 text-xs flex items-center gap-1.5 mb-1">
+                                <i data-lucide="user" class="w-4 h-4 text-sky-600"></i> Cliente / Comprador
+                            </div>
+                            <p class="text-[11px] text-slate-600">Navega el catálogo, filtra por talla, selecciona productos, ingresa datos de entrega y realiza el pago.</p>
+                        </div>
+                        <div class="border border-slate-200 p-3.5 rounded-xl bg-slate-50">
+                            <div class="font-bold text-slate-800 text-xs flex items-center gap-1.5 mb-1">
+                                <i data-lucide="user-check" class="w-4 h-4 text-emerald-600"></i> Vendedor / Cajero
+                            </div>
+                            <p class="text-[11px] text-slate-600">Registra pedidos de venta física en caja, valida existencias e imprime comprobantes de compra.</p>
+                        </div>
+                        <div class="border border-slate-200 p-3.5 rounded-xl bg-slate-50">
+                            <div class="font-bold text-slate-800 text-xs flex items-center gap-1.5 mb-1">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600"></i> Administrador
+                            </div>
+                            <p class="text-[11px] text-slate-600">Supervisa existencias globales, realiza reposición de stock por modelo y talla, e inspeciona métricas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Representación Visual / Diagrama de Caso de Uso -->
+                <div class="border border-slate-200 rounded-2xl p-5 bg-slate-900 text-white space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-sm text-sky-400 flex items-center gap-2">
+                            <i data-lucide="network" class="w-4 h-4"></i> Diagrama de Casos de Uso (UML Visual)
+                        </h3>
+                        <span class="text-[10px] text-slate-400">SISTEMA POS & E-COMMERCE URBANSTEP</span>
+                    </div>
+
+                    <!-- Representación Gráfica Interactiva -->
+                    <div class="bg-slate-950 rounded-xl p-6 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 text-xs">
+                        <!-- Actor Cliente -->
+                        <div class="flex flex-col items-center text-center space-y-2">
+                            <div class="w-12 h-12 bg-sky-500/20 text-sky-400 border border-sky-500/40 rounded-full flex items-center justify-center">
+                                <i data-lucide="user" class="w-6 h-6"></i>
+                            </div>
+                            <span class="font-bold text-slate-200">Cliente / Usuario</span>
+                        </div>
+
+                        <!-- Conexiones / Casos de Uso -->
+                        <div class="flex-1 w-full grid grid-cols-1 gap-2.5 max-w-md">
+                            <div class="bg-slate-800 border border-slate-700 px-3 py-2 rounded-xl text-center font-semibold text-slate-200 shadow-sm flex items-center justify-between">
+                                <span>1. Consultar Catálogo y Filtrar Tallas</span>
+                                <span class="text-[9px] bg-sky-900 text-sky-300 px-2 py-0.5 rounded-full"><< Include >></span>
+                            </div>
+                            <div class="bg-brand-900/60 border border-brand-500/50 px-3 py-2 rounded-xl text-center font-bold text-sky-200 shadow-sm flex items-center justify-between">
+                                <span>2. Vender Calzado / Registrar Pedido</span>
+                                <span class="text-[9px] bg-brand-500 text-white px-2 py-0.5 rounded-full font-bold">PRINCIPAL</span>
+                            </div>
+                            <div class="bg-slate-800 border border-slate-700 px-3 py-2 rounded-xl text-center font-semibold text-slate-200 shadow-sm flex items-center justify-between">
+                                <span>3. Procesar Pago y Generar Factura</span>
+                                <span class="text-[9px] bg-sky-900 text-sky-300 px-2 py-0.5 rounded-full"><< Include >></span>
+                            </div>
+                            <div class="bg-slate-800 border border-slate-700 px-3 py-2 rounded-xl text-center font-semibold text-slate-200 shadow-sm flex items-center justify-between">
+                                <span>4. Actualizar Stock / Inventario</span>
+                                <span class="text-[9px] bg-indigo-900 text-indigo-300 px-2 py-0.5 rounded-full"><< Extend >></span>
+                            </div>
+                        </div>
+
+                        <!-- Actor Administrador -->
+                        <div class="flex flex-col items-center text-center space-y-2">
+                            <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 rounded-full flex items-center justify-center">
+                                <i data-lucide="shield" class="w-6 h-6"></i>
+                            </div>
+                            <span class="font-bold text-slate-200">Administrador</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Precondiciones y Postcondiciones -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="bg-amber-50/60 border border-amber-200 p-4 rounded-xl">
+                        <h4 class="font-extrabold text-amber-900 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i> Precondiciones
+                        </h4>
+                        <ul class="list-disc list-inside text-xs text-amber-900 space-y-1">
+                            <li>El sistema debe tener cargado el catálogo de zapatos activos.</li>
+                            <li>Debe existir al menos 1 par en inventario de la talla seleccionada.</li>
+                            <li>La pasarela de pago o terminal POS debe estar en línea.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-emerald-50/60 border border-emerald-200 p-4 rounded-xl">
+                        <h4 class="font-extrabold text-emerald-900 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Poscondiciones
+                        </h4>
+                        <ul class="list-disc list-inside text-xs text-emerald-900 space-y-1">
+                            <li>Descuento automático del stock por cada modelo y talla vendida.</li>
+                            <li>Registro de la transacción en la base de datos de ventas.</li>
+                            <li>Generación del recibo / ticket fiscal con número correlativo único.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Flujo Principal de Pasos -->
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm mb-3">Flujo Principal de Eventos (Paso a Paso)</h3>
+                    <div class="border border-slate-200 rounded-xl divide-y divide-slate-100 text-xs">
+                        <div class="p-3 flex gap-3 bg-slate-50/50">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white font-bold flex items-center justify-center shrink-0">1</span>
+                            <div>
+                                <strong class="text-slate-800">Exploración y Filtrado:</strong> El usuario o vendedor explora la lista de productos y aplica filtros por tipo de calzado (deportivas, botas) o talla específica (38-44).
+                            </div>
+                        </div>
+                        <div class="p-3 flex gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white font-bold flex items-center justify-center shrink-0">2</span>
+                            <div>
+                                <strong class="text-slate-800">Selección de Talla y Agregar al Carrito:</strong> Se selecciona la talla del calzado deseado. El sistema verifica disponiblidad previa de stock y lo añade a la orden.
+                            </div>
+                        </div>
+                        <div class="p-3 flex gap-3 bg-slate-50/50">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white font-bold flex items-center justify-center shrink-0">3</span>
+                            <div>
+                                <strong class="text-slate-800">Cálculo de Importes:</strong> El sistema calcula automáticamente el Subtotal, el IVA correspondiente (13%) y el Total a abonar.
+                            </div>
+                        </div>
+                        <div class="p-3 flex gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white font-bold flex items-center justify-center shrink-0">4</span>
+                            <div>
+                                <strong class="text-slate-800">Ingreso de Datos de Facturación:</strong> Se completa el formulario con nombre del cliente, dirección de entrega y selección de método de pago (Tarjeta / Efectivo).
+                            </div>
+                        </div>
+                        <div class="p-3 flex gap-3 bg-slate-50/50">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white font-bold flex items-center justify-center shrink-0">5</span>
+                            <div>
+                                <strong class="text-slate-800">Procesamiento y Confirmación:</strong> El sistema valida el pago, reduce las existencias en inventario y despliega el ticket digital imprimible.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flujos Alternativos / Excepciones -->
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm mb-3">Flujos Alternativos y Excepciones</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="border border-red-200 bg-red-50/50 p-3.5 rounded-xl space-y-1">
+                            <span class="font-bold text-red-800 flex items-center gap-1">
+                                <i data-lucide="x-circle" class="w-4 h-4 text-red-600"></i> Excepción E1: Talla Sin Stock
+                            </span>
+                            <p class="text-slate-600">Si la talla seleccionada no posee unidades (Stock = 0), el botón de compra se inhabilita automáticamente impidiendo agregar el producto.</p>
+                        </div>
+                        <div class="border border-red-200 bg-red-50/50 p-3.5 rounded-xl space-y-1">
+                            <span class="font-bold text-red-800 flex items-center gap-1">
+                                <i data-lucide="credit-card" class="w-4 h-4 text-red-600"></i> Excepción E2: Pago Rechazado
+                            </span>
+                            <p class="text-slate-600">Si la entidad bancaria o el cliente cancela la operación, el sistema lanza una alerta de rechazo, no descuenta existencias y mantiene el carrito intacto.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ==================================================== -->
+        <!-- SECCIÓN 3: PANEL DE INVENTARIO Y REPOSICIÓN (ADMIN)  -->
+        <!-- ==================================================== -->
+        <section id="view-admin" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="boxes" class="w-5 h-5 text-brand-600"></i> Gestión de Stock e Inventario en Tiempo Real
+                        </h2>
+                        <p class="text-xs text-slate-500">Monitorea y reabastece existencias por modelo y talla para la zapatería UrbanStep.</p>
+                    </div>
+                    <button onclick="restockAll()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        <span>Reabastecer Todo (+5 Pares por Talla)</span>
+                    </button>
+                </div>
+
+                <!-- Tabla de Productos e Inventario -->
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">Zapato / Modelo</th>
+                                <th class="p-3">Categoría</th>
+                                <th class="p-3">Precio</th>
+                                <th class="p-3">Existencias por Talla (38 - 44)</th>
+                                <th class="p-3 text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body" class="divide-y divide-slate-100">
+                            <!-- JS Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER & GUÍA GITHUB PAGES -->
+    <footer class="bg-slate-900 text-slate-400 text-xs border-t border-slate-800 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="footprints" class="w-5 h-5 text-sky-400"></i>
+                <span class="font-bold text-white">UrbanStep POS & Portal Demo</span>
+                <span>— Proyecto Web Estático listo para GitHub Pages</span>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button onclick="openGithubModal()" class="text-sky-400 hover:text-sky-300 font-semibold underline flex items-center gap-1">
+                    <i data-lucide="github" class="w-4 h-4"></i> Instrucciones de Publicación en GitHub
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL TICKET COMPROBANTE -->
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 border border-slate-100">
+            
+            <!-- Contenido Imprimible -->
+            <div id="printable-receipt" class="space-y-4 text-slate-800 font-mono text-xs">
+                <div class="text-center space-y-1 border-b border-dashed border-slate-300 pb-4">
+                    <div class="font-sans font-black text-xl text-slate-900 tracking-wider">URBANSTEP</div>
+                    <p class="text-[10px] text-slate-500 font-sans">Zapatería & Calzado Urbano</p>
+                    <p class="text-[10px] text-slate-500 font-sans">Ticket No: #US-<span id="receipt-number">0000</span></p>
+                    <p class="text-[10px] text-slate-500 font-sans" id="receipt-date">2026-10-23</p>
+                </div>
+
+                <div class="text-[11px] font-sans space-y-0.5 border-b pb-2">
+                    <p><strong class="text-slate-900">Cliente:</strong> <span id="receipt-client-name">Cliente Final</span></p>
+                    <p><strong class="text-slate-900">Dirección:</strong> <span id="receipt-client-address">En Tienda</span></p>
+                </div>
+
+                <!-- Detalle de Productos -->
+                <div class="space-y-2">
+                    <div class="flex justify-between font-bold text-slate-900 border-b pb-1">
+                        <span>CANT / PRODUCTO</span>
+                        <span>TOTAL</span>
+                    </div>
+                    <div id="receipt-items-list" class="space-y-1.5">
+                        <!-- Llenado dinámico -->
+                    </div>
+                </div>
+
+                <!-- Totales -->
+                <div class="border-t border-dashed border-slate-300 pt-3 space-y-1">
+                    <div class="flex justify-between">
+                        <span>SUBTOTAL:</span>
+                        <span id="receipt-subtotal">$0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>IVA (13%):</span>
+                        <span id="receipt-tax">$0.00</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-sm text-slate-900 pt-1 border-t">
+                        <span>TOTAL PAGADO:</span>
+                        <span id="receipt-total">$0.00</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-600 pt-1">
+                        <span>PAGO CON:</span>
+                        <span id="receipt-method" class="font-bold uppercase">TARJETA</span>
+                    </div>
+                </div>
+
+                <div class="text-center pt-3 border-t border-dashed border-slate-300 space-y-1 text-[10px] text-slate-500 font-sans">
+                    <p class="font-bold text-slate-800">¡Gracias por preferir UrbanStep!</p>
+                    <p>30 días de garantía por defectos de fabricación con este ticket.</p>
+                </div>
+            </div>
+
+            <!-- Botones Modal -->
+            <div class="pt-2 flex gap-2 font-sans">
+                <button onclick="closeReceiptModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition">
+                    Cerrar
+                </button>
+                <button onclick="window.print()" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Imprimir Ticket
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL INSTRUCCIONES GITHUB PAGES -->
+    <div id="github-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-5 border border-slate-800">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-base flex items-center gap-2 text-sky-400">
+                    <i data-lucide="github" class="w-5 h-5"></i> Publicar en GitHub Pages
+                </h3>
+                <button onclick="closeGithubModal()" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-300">
+                <p>Para alojar este portal web completo de manera gratuita en GitHub Pages, sigue estos pasos:</p>
+                
+                <ol class="list-decimal list-inside space-y-2 font-mono bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-[11px] text-sky-300">
+                    <li>Guarda este archivo con el nombre <span class="text-amber-400">index.html</span></li>
+                    <li>git init</li>
+                    <li>git add index.html</li>
+                    <li>git commit -m "Initial UrbanStep Website release"</li>
+                    <li>git branch -M main</li>
+                    <li>git remote add origin https://github.com/TU_USUARIO/TU_REPOSITO.git</li>
+                    <li>git push -u origin main</li>
+                </ol>
+
+                <p><strong class="text-white">Paso final en GitHub:</strong> Ve a los <span class="text-sky-400 font-semibold">Settings</span> de tu repositorio &rarr; <span class="text-sky-400 font-semibold">Pages</span> &rarr; Selecciona la rama <span class="text-amber-400 font-semibold">main</span> como Source y guarda. En 1 minuto tendrás tu enlace activo.</p>
+            </div>
+
+            <button onclick="closeGithubModal()" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-xs transition">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICACIÓN -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2.5 z-50 text-xs font-medium border border-slate-800">
+        <i data-lucide="info" class="w-4 h-4 text-sky-400" id="toast-icon"></i>
+        <span id="toast-msg">Notificación del sistema</span>
+    </div>
+
+    <!-- LOGICA JAVASCRIPT VANILLA -->
+    <script>
+        // BASE DE DATOS LOCAL DE INVENTARIO
+        const inventory = [
+            {
+                id: 1,
+                name: "Nike Urban Air Max",
+                category: "deportivas",
+                brand: "Nike",
+                price: 119.99,
+                image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
+                sizes: { 38: 3, 39: 5, 40: 2, 41: 0, 42: 4, 43: 2, 44: 1 }
+            },
+            {
+                id: 2,
+                name: "Adidas Superstar Classic",
+                category: "casual",
+                brand: "Adidas",
+                price: 89.50,
+                image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=600&q=80",
+                sizes: { 38: 4, 39: 2, 40: 6, 41: 3, 42: 1, 43: 0, 44: 2 }
+            },
+            {
+                id: 3,
+                name: "Botas Explorer Heavy Duty",
+                category: "botas",
+                brand: "Caterpillar",
+                price: 145.00,
+                image: "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?auto=format&fit=crop&w=600&q=80",
+                sizes: { 38: 0, 39: 3, 40: 4, 41: 5, 42: 2, 43: 1, 44: 0 }
+            },
+            {
+                id: 4,
+                name: "Mocasín Formal Oxford Leather",
+                category: "formales",
+                brand: "Clarks",
+                price: 129.99,
+                image: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?auto=format&fit=crop&w=600&q=80",
+                sizes: { 38: 2, 39: 4, 40: 3, 41: 2, 42: 5, 43: 3, 44: 2 }
+            },
+            {
+                id: 5,
+                name: "Sandalias Comfort Summer",
+                category: "sandalias",
+                brand: "Birkenstock",
+                price: 49.99,
+                image: "https://images.unsplash.com/photo-1603808033192-082d6919d3e1?auto=format&fit=crop&w=600&q=80",
+                sizes: { 38: 6, 39: 4, 40: 2, 41: 1, 42: 0, 43: 0, 44: 0 }
+            },
+            {
+                id: 6,
+                name: "Puma Retro Runner 80s",
+                category: "deportivas",
+                brand: "Puma",
+                price: 79.99,
+                image: "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=600&q=80",
+                sizes: { 38: 2, 39: 3, 40: 5, 41: 4, 42: 3, 43: 2, 44: 1 }
+            }
+        ];
+
+        // ESTADO GLOBAL DE LA APLICACIÓN
+        let cart = [];
+        let activeCategory = 'all';
+        let selectedSizesState = {}; // { productId: tallaSeleccionada }
+        const TAX_RATE = 0.13;
+
+        // INICIALIZACIÓN
+        window.onload = function() {
+            lucide.createIcons();
+            
+            // Establecer talla por defecto para cada zapato
+            inventory.forEach(item => {
+                const available = Object.keys(item.sizes).find(s => item.sizes[s] > 0);
+                selectedSizesState[item.id] = available ? parseInt(available) : 38;
+            });
+
+            renderCatalog();
+            renderAdminInventory();
+            updateCartUI();
+        };
+
+        // CAMBIO DE TABS / VISTAS
+        function switchTab(tab) {
+            const viewTienda = document.getElementById('view-tienda');
+            const viewDoc = document.getElementById('view-doc');
+            const viewAdmin = document.getElementById('view-admin');
+
+            const btnTienda = document.getElementById('tab-btn-tienda');
+            const btnDoc = document.getElementById('tab-btn-doc');
+            const btnAdmin = document.getElementById('tab-btn-admin');
+
+            viewTienda.classList.add('hidden');
+            viewDoc.classList.add('hidden');
+            viewAdmin.classList.add('hidden');
+
+            const activeClass = "px-3 sm:px-4 py-1.5 font-semibold rounded-lg transition-all flex items-center space-x-1.5 bg-brand-600 text-white shadow-sm";
+            const inactiveClass = "px-3 sm:px-4 py-1.5 font-semibold rounded-lg text-slate-300 hover:text-white transition-all flex items-center space-x-1.5";
+
+            btnTienda.className = inactiveClass;
+            btnDoc.className = inactiveClass;
+            btnAdmin.className = inactiveClass;
+
+            if (tab === 'tienda') {
+                viewTienda.classList.remove('hidden');
+                btnTienda.className = activeClass;
+            } else if (tab === 'doc') {
+                viewDoc.classList.remove('hidden');
+                btnDoc.className = activeClass;
+            } else if (tab === 'admin') {
+                viewAdmin.classList.remove('hidden');
+                btnAdmin.className = activeClass;
+                renderAdminInventory();
+            }
+        }
+
+        // FILTRAR CATEGORÍA
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('#category-filters button').forEach(btn => {
+                btn.className = "cat-btn border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs px-3 py-2 rounded-xl whitespace-nowrap transition";
+            });
+            event.target.className = "cat-btn active border border-brand-500 bg-brand-50 text-brand-700 font-semibold text-xs px-3 py-2 rounded-xl whitespace-nowrap transition";
+            renderCatalog();
+        }
+
+        // SELECCIONAR TALLA EN TARJETA
+        function selectSizeForProduct(productId, size) {
+            selectedSizesState[productId] = parseInt(size);
+            renderCatalog();
+        }
+
+        // RENDERIZAR CATÁLOGO DE ZAPATOS
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            const selectedSizeFilter = document.getElementById('size-filter').value;
+
+            grid.innerHTML = '';
+
+            const filtered = inventory.filter(item => {
+                const matchesCat = activeCategory === 'all' || item.category === activeCategory;
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery) || item.brand.toLowerCase().includes(searchQuery);
+                let matchesSize = true;
+
+                if (selectedSizeFilter !== 'all') {
+                    matchesSize = item.sizes[selectedSizeFilter] > 0;
+                }
+
+                return matchesCat && matchesSearch && matchesSize;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">
+                        <i data-lucide="package-x" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+                        <p class="text-xs font-semibold">No se encontraron calzados con esos criterios.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            filtered.forEach(item => {
+                const currentSelectedSize = selectedSizesState[item.id] || 38;
+                const currentStock = item.sizes[currentSelectedSize] || 0;
+                const isOutOfStock = currentStock <= 0;
+
+                // Generar Botones de Tallas
+                let sizeButtonsHTML = '';
+                Object.keys(item.sizes).forEach(size => {
+                    const count = item.sizes[size];
+                    const isSelected = parseInt(size) === currentSelectedSize;
+                    
+                    let btnStyle = "border-slate-200 text-slate-700 hover:bg-slate-100";
+                    if (count === 0) {
+                        btnStyle = "border-slate-100 bg-slate-100 text-slate-300 cursor-not-allowed";
+                    } else if (isSelected) {
+                        btnStyle = "border-brand-600 bg-brand-600 text-white font-bold";
+                    }
+
+                    sizeButtonsHTML += `
+                        <button onclick="selectSizeForProduct(${item.id}, ${size})" ${count === 0 ? 'disabled' : ''} class="w-7 h-7 rounded-lg border text-[11px] flex items-center justify-center transition ${btnStyle}">
+                            ${size}
+                        </button>
+                    `;
+                });
+
+                grid.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <!-- Imagen y Badge -->
+                            <div class="relative h-44 bg-slate-100 overflow-hidden">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover object-center hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/400x300/e2e8f0/64748b?text=Calzado'">
+                                <span class="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+                                    ${item.brand}
+                                </span>
+                            </div>
+
+                            <!-- Información de Producto -->
+                            <div class="p-4 space-y-3">
+                                <div>
+                                    <h3 class="font-bold text-slate-900 text-sm leading-tight">${item.name}</h3>
+                                    <p class="text-brand-600 font-extrabold text-base mt-0.5">$${item.price.toFixed(2)}</p>
+                                </div>
+
+                                <!-- Selección de Tallas -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-1 text-[11px]">
+                                        <span class="font-semibold text-slate-500">Talla EUR:</span>
+                                        <span class="${isOutOfStock ? 'text-red-500 font-bold' : 'text-emerald-600 font-semibold'}">
+                                            ${isOutOfStock ? 'Agotado' : `${currentStock} disp.`}
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-1">
+                                        ${sizeButtonsHTML}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón Añadir -->
+                        <div class="p-4 pt-0">
+                            <button onclick="addToCart(${item.id})" ${isOutOfStock ? 'disabled' : ''} class="w-full py-2 px-3 bg-slate-900 hover:bg-brand-600 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-1.5">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>${isOutOfStock ? 'Talla Agotada' : 'Agregar al Carrito'}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            lucide.createIcons();
+        }
+
+        // AGREGAR PRODUCTO AL CARRITO
+        function addToCart(productId) {
+            const product = inventory.find(p => p.id === productId);
+            const size = selectedSizesState[productId];
+            const stockAvailable = product.sizes[size];
+
+            if (stockAvailable <= 0) {
+                showToast("Talla sin existencias disponibles", "alert-circle");
+                return;
+            }
+
+            const existingIndex = cart.findIndex(item => item.id === productId && item.size === size);
+
+            if (existingIndex > -1) {
+                if (cart[existingIndex].qty + 1 > stockAvailable) {
+                    showToast(`Solo quedan ${stockAvailable} pares disponibles`, "alert-circle");
+                    return;
+                }
+                cart[existingIndex].qty += 1;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    brand: product.brand,
+                    price: product.price,
+                    size: size,
+                    qty: 1
+                });
+            }
+
+            showToast(`Agregado: ${product.name} (Talla ${size})`);
+            updateCartUI();
+        }
+
+        // CAMBIAR CANTIDADES EN CARRITO
+        function updateCartQty(index, change) {
+            const cartItem = cart[index];
+            const product = inventory.find(p => p.id === cartItem.id);
+            const maxStock = product.sizes[cartItem.size];
+
+            const newQty = cartItem.qty + change;
+
+            if (newQty > maxStock) {
+                showToast(`Máximo disponible alcanzado (${maxStock})`, "alert-circle");
+                return;
+            }
+
+            if (newQty <= 0) {
+                cart.splice(index, 1);
+            } else {
+                cartItem.qty = newQty;
+            }
+
+            updateCartUI();
+        }
+
+        // VACIAR CARRITO
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+        }
+
+        // ACTUALIZAR INTERFAZ DEL CARRITO
+        function updateCartUI() {
+            const container = document.getElementById('cart-items');
+            const cartBadge = document.getElementById('cart-badge');
+            const btnCheckout = document.getElementById('btn-checkout');
+
+            container.innerHTML = '';
+            let totalItems = 0;
+            let subtotal = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="h-36 flex flex-col items-center justify-center text-slate-400 space-y-1">
+                        <i data-lucide="shopping-cart" class="w-8 h-8 opacity-30"></i>
+                        <p class="text-xs">El carrito está vacío</p>
+                    </div>
+                `;
+                btnCheckout.disabled = true;
+            } else {
+                cart.forEach((item, index) => {
+                    totalItems += item.qty;
+                    const itemTotal = item.price * item.qty;
+                    subtotal += itemTotal;
+
+                    container.innerHTML += `
+                        <div class="pt-2.5 first:pt-0 flex items-center justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-xs font-bold text-slate-800 truncate">${item.name}</h4>
+                                <div class="flex items-center space-x-2 text-[10px] text-slate-500 mt-0.5">
+                                    <span class="bg-slate-100 px-1.5 py-0.5 rounded font-bold text-slate-700">Talla ${item.size}</span>
+                                    <span>$${item.price.toFixed(2)} c/u</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-1 border border-slate-200 rounded-lg p-0.5">
+                                <button onclick="updateCartQty(${index}, -1)" class="w-5 h-5 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded">
+                                    <i data-lucide="minus" class="w-3 h-3"></i>
+                                </button>
+                                <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+                                <button onclick="updateCartQty(${index}, 1)" class="w-5 h-5 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded">
+                                    <i data-lucide="plus" class="w-3 h-3"></i>
+                                </button>
+                            </div>
+
+                            <span class="text-xs font-extrabold text-slate-800 min-w-[50px] text-right">$${itemTotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                btnCheckout.disabled = false;
+            }
+
+            const tax = subtotal * TAX_RATE;
+            const total = subtotal + tax;
+
+            cartBadge.innerText = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+            document.getElementById('summary-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('summary-tax').innerText = `$${tax.toFixed(2)}`;
+            document.getElementById('summary-total').innerText = `$${total.toFixed(2)}`;
+
+            lucide.createIcons();
+        }
+
+        // PROCESAR CHECKOUT / CONFIRMAR PEDIDO
+        function processCheckout() {
+            if (cart.length === 0) return;
+
+            // Simular Excepción de Pago
+            const isSimulatedFail = document.getElementById('simulate-fail').checked;
+            if (isSimulatedFail) {
+                showToast("¡Error de Pago! Tarjeta rechazada por la entidad emisora.", "x-circle");
+                return;
+            }
+
+            const clientName = document.getElementById('checkout-name').value.trim() || "Cliente UrbanStep";
+            const clientAddress = document.getElementById('checkout-address').value.trim() || "Entrega en Sucursal Central";
+            const paymentMethod = document.querySelector('input[name="pay_method"]:checked').value;
+
+            // Descontar Inventario
+            cart.forEach(item => {
+                const product = inventory.find(p => p.id === item.id);
+                if (product) {
+                    product.sizes[item.size] -= item.qty;
+                }
+            });
+
+            // Preparar Modal Recibo
+            document.getElementById('receipt-number').innerText = Math.floor(10000 + Math.random() * 90000);
+            document.getElementById('receipt-date').innerText = new Date().toLocaleString();
+            document.getElementById('receipt-client-name').innerText = clientName;
+            document.getElementById('receipt-client-address').innerText = clientAddress;
+            document.getElementById('receipt-method').innerText = paymentMethod;
+
+            let subtotal = 0;
+            const receiptList = document.getElementById('receipt-items-list');
+            receiptList.innerHTML = '';
+
+            cart.forEach(item => {
+                const lineTotal = item.price * item.qty;
+                subtotal += lineTotal;
+                receiptList.innerHTML += `
+                    <div class="flex justify-between text-[11px]">
+                        <span>${item.qty}x ${item.name} (T.${item.size})</span>
+                        <span>$${lineTotal.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            const tax = subtotal * TAX_RATE;
+            const total = subtotal + tax;
+
+            document.getElementById('receipt-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('receipt-tax').innerText = `$${tax.toFixed(2)}`;
+            document.getElementById('receipt-total').innerText = `$${total.toFixed(2)}`;
+
+            document.getElementById('receipt-modal').classList.remove('hidden');
+
+            showToast("¡Pedido y Venta Registrada con Éxito!");
+            renderCatalog();
+            clearCart();
+        }
+
+        // PANEL DE INVENTARIO (ADMIN)
+        function renderAdminInventory() {
+            const tbody = document.getElementById('inventory-table-body');
+            tbody.innerHTML = '';
+
+            inventory.forEach(item => {
+                let sizePills = '';
+                Object.keys(item.sizes).forEach(size => {
+                    const count = item.sizes[size];
+                    const badgeClass = count === 0 ? 'bg-red-100 text-red-700 font-bold' : 'bg-slate-100 text-slate-700';
+                    sizePills += `
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] border border-slate-200 ${badgeClass}">
+                            T.${size}: <strong>${count}</strong>
+                        </span>
+                    `;
+                });
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-bold text-slate-800">${item.name}</td>
+                        <td class="p-3 capitalize">${item.category}</td>
+                        <td class="p-3 font-semibold text-brand-600">$${item.price.toFixed(2)}</td>
+                        <td class="p-3">
+                            <div class="flex flex-wrap gap-1">${sizePills}</div>
+                        </td>
+                        <td class="p-3 text-right">
+                            <button onclick="restockItem(${item.id})" class="px-2.5 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-lg border border-brand-200 transition text-[11px]">
+                                +5 Todo
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function restockItem(productId) {
+            const product = inventory.find(p => p.id === productId);
+            if (product) {
+                Object.keys(product.sizes).forEach(s => product.sizes[s] += 5);
+                renderAdminInventory();
+                renderCatalog();
+                showToast(`Stock de ${product.name} reabastecido (+5 por talla)`);
+            }
+        }
+
+        function restockAll() {
+            inventory.forEach(p => {
+                Object.keys(p.sizes).forEach(s => p.sizes[s] += 5);
+            });
+            renderAdminInventory();
+            renderCatalog();
+            showToast("Todo el inventario reabastecido (+5 pares por talla)");
+        }
+
+        // MODALES
+        function closeReceiptModal() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        }
+
+        function openGithubModal() {
+            document.getElementById('github-modal').classList.remove('hidden');
+        }
+function openGithubModal() {
+            document.getElementById('github-modal').classList.remove('hidden');
+        }
+
+        function closeGithubModal() {
+            document.getElementById('github-modal').classList.add('hidden');
+        }
+
+        // TOAST SYSTEM
+        function showToast(msg, icon = "check-circle") {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3200);
+        }
+    </script>
+</body>
+</html>
